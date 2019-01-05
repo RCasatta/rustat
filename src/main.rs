@@ -138,6 +138,7 @@ fn run() -> Result<()> {
             maps.op_ret_per_month.remove(&current_ym);
             maps.segwit_per_month.remove(&current_ym);
             maps.txo_per_month.remove(&current_ym);
+            maps.veriblock_per_month.remove(&current_ym);
 
             //align key space
             align(&mut  maps.op_ret_per_month, &mut maps.txo_per_month);
