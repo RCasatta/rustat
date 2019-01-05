@@ -52,6 +52,12 @@
     </div>
     <br><br><br><br>
 
+    <h2 style="text-align:center">Number of veriblock transaction</h2>
+    <div style="width:100%;">
+        <canvas id="veriblock_per_month"></canvas>
+    </div>
+    <br><br><br><br>
+
     <p>* protocols just mean the first 3 bytes of the OP_RETURN data, which can indicate the protocol but it's not an enfoced rule by the Bitcoin consensus</p>
 
     <script>
@@ -264,6 +270,55 @@
         }
 
 
+        var labels_veriblock_per_month = {{ txo_per_month_labels }};
+
+        var data_veriblock_per_month = {{ veriblock_per_month_data }};
+
+        var config_veriblock_per_month = {
+            type: 'line',
+            data: {
+                labels: labels_veriblock_per_month,
+                datasets: [
+                    {
+                        label: "veriblock Outputs",
+                        data: data_veriblock_per_month,
+                        yAxisID: "y-axis-1",
+                        fill: true,
+                        backgroundColor: 'rgba(54, 162, 235,0.5)',
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                tooltips: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                hover: {
+                    mode: 'nearest',
+                    intersect: true
+                },
+                scales: {
+                    xAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Months'
+                        }
+                    }],
+                    yAxes: [{
+                        display: true,
+                        id: "y-axis-1",
+                        position: "left",
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'veriblock'
+                        }
+                    }]
+                }
+            }
+        };
+
 
 
         window.onload = function() {
@@ -282,6 +337,9 @@
 
             var ctx_bar_data = document.getElementById("bar_canvas").getContext("2d");
             window.ctx_bar_data = new Chart(ctx_bar_data, bar_config);
+
+            var ctx_veriblock_per_month = document.getElementById("veriblock_per_month").getContext("2d");
+            window.veriblock_per_month = new Chart(ctx_veriblock_per_month, config_veriblock_per_month);
 
         };
 

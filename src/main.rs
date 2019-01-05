@@ -1,3 +1,5 @@
+#![recursion_limit="128"]
+
 #[macro_use]
 extern crate error_chain;
 #[macro_use]
@@ -48,6 +50,7 @@ struct Maps {
     tx_per_template : HashMap<String,u32>,
     tx_per_template_last_month : HashMap<String,u32>,
     txo_size : HashMap<usize,u32>,
+    veriblock_per_month : HashMap<String,u32>,
 }
 
 #[derive(Debug)]
@@ -69,6 +72,7 @@ impl Maps {
             tx_per_template : HashMap::new(),
             tx_per_template_last_month : HashMap::new(),
             txo_size : HashMap::new(),
+            veriblock_per_month : HashMap::new(),
         }
     }
 }
@@ -138,6 +142,7 @@ fn run() -> Result<()> {
             //align key space
             align(&mut  maps.op_ret_per_month, &mut maps.txo_per_month);
             align(&mut  maps.segwit_per_month, &mut maps.txo_per_month);
+            align(&mut  maps.veriblock_per_month, &mut maps.txo_per_month);
 
             let txo_per_month : Serie = print_map_by_key(&maps.txo_per_month);
             let op_ret_per_month : Serie = print_map_by_key(&maps.op_ret_per_month);
@@ -151,6 +156,8 @@ fn run() -> Result<()> {
 
             let txo_size : Serie = print_map_by_usize_key(&maps.txo_size);
             let op_ret_size : Serie = print_map_by_usize_key(&maps.op_ret_size);
+
+            let veriblock_per_month : Serie = print_map_by_key(&maps.veriblock_per_month);
 
             let json = json!({
                      "op_ret_per_month_labels":op_ret_per_month.labels,
@@ -173,6 +180,8 @@ fn run() -> Result<()> {
                      "txo_size_data":txo_size.data,
                      "op_ret_size_labels":op_ret_size.labels,
                      "op_ret_size_data":op_ret_size.data,
+                     "veriblock_per_month_labels":veriblock_per_month.labels,
+                     "veriblock_per_month_data":veriblock_per_month.data,
                      });
 
             write_output(&op_return_template, &json, "outputs/op_return/");
@@ -392,8 +401,12 @@ fn update(parsed : Parsed, maps :  &mut Maps) {
             *maps.op_ret_per_proto_last_year.entry(op_ret_proto.clone()).or_insert(0) += 1;
         }
         *maps.op_ret_per_month.entry(parsed.ym.clone()).or_insert(0)+=1;
-        *maps.op_ret_per_proto.entry(op_ret_proto).or_insert(0)+=1;
+        *maps.op_ret_per_proto.entry(op_ret_proto.clone()).or_insert(0)+=1;
         *maps.op_ret_size.entry(parsed.script_size).or_insert(0)+=1;
+
+        if op_ret_proto.starts_with("0004") {
+            *maps.veriblock_per_month.entry(parsed.ym.clone()).or_insert(0) += 1;
+        }
     }
 
     if parsed.is_last_month {
